@@ -11,10 +11,10 @@ class CommandHandler(asyncore.dispatcher_with_send):
       self.send("""
 Available commands:
 help              Show this message
+config            dump the ini configuration 
 count <channel>   Retrieves the raw count values of a2d <channel>
 value <channel>   Retrieves the converted value of the a2d <channel>
-pulsegpio         Pulse Close the socket connection
-gpio <#> <high|low|?> Set GPIO pin or query it
+pulsegpio <#>     Pulse gpio pin # as set in the configuration
 quit|exit         Close the socket connection
 
 Additionally, if valid JSON document is passed, with the 
@@ -23,7 +23,6 @@ query such as:
   
   {
     "channels": [0, 3, 4]
-    <"exit">
   }
 
 A JSON document similar to below will be returned:
@@ -34,9 +33,21 @@ A JSON document similar to below will be returned:
   }
 
 Where the indexes of the array are mapped to channel 
-#0, 3, and 4 respectively. If the key 'exit' is set,
-the server will close the connection after sending the
-measured value.
+#0, 3, and 4 respectively. It is also possible to set
+the "pulsegpio" via a "pulsegpio": 1 directive, or
+you can sever the socket connection after via setting a 
+"quit" or "exit" section.  Their values are ignored.
+
+EG:
+
+{"channels": [0], "pulsegpio": 1, "exit": 0} 
+
+would:
+
+- Return something like: {"counts": [514], "values": [2.5], "units": ['V']}
+- Pulse the GPIO as per the config, and
+- Close the socket.
+
 """)
     if cmd == "quit" or cmd == "exit":
       self.send("Closing connection\n")
