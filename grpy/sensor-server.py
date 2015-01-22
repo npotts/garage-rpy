@@ -10,10 +10,12 @@ class CommandHandler(asyncore.dispatcher_with_send):
     if cmd == "help":
       self.send("""
 Available commands:
-help                Show this message
-count <channel=0>   Retrieves the raw count values of a2d <channel>
-value <channel=0>   Retrieves the converted value of the a2d <channel>
-quit|exit           Close the socket connection
+help              Show this message
+count <channel>   Retrieves the raw count values of a2d <channel>
+value <channel>   Retrieves the converted value of the a2d <channel>
+pulsegpio         Pulse Close the socket connection
+gpio <#> <high|low|?> Set GPIO pin or query it
+quit|exit         Close the socket connection
 
 Additionally, if valid JSON document is passed, with the 
 key of "channels" defined to be an array of channels to 
