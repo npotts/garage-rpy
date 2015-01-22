@@ -3,9 +3,9 @@ import time
 import math
 import logging
 try:
-    import spidev
+  import spidev
 except:
-    pass
+  print("Unable to import spidev")
 try:
     import ConfigParser as configparser #python2
 except:
@@ -59,13 +59,29 @@ class gsensors:
   def __init__(self, cfg):
     self.cnt2val = cfg.cnt2val
     self.spi = spidev.SpiDev()
-    self.spi.open(cfg.spidev_port, cfg.spidev_ce)
+    self.spi.open(cfg.spi_port, cfg.spi_ce)
 
   def readRawCounts(self, channel):
-    # Function to read SPI data from MCP3008 chip channel must be an integer 0-7
-    #adc = [0x02, 0x30, 0xff]
-    adc = self.spi.xfer2([1,(8+channel)<<4,0])
-    data = ((adc[1]&3) << 8) + adc[2]
+    # Function to read SPI data from MCP3208 chip. 
+    # channel must be an integer 0-7 adc;
+    if (channel < 0) | (channel > 7):
+      return -1;
+    # A slight difference between the MCP3008 and the MCP3208 is
+    # the MCP3208 is a 12-bit device.  Per the MCP3208/MCP3204 datasheet
+    # on pg 21, we should:
+    #   Shove out 5 zero bits, followed by 1 one bit, followed by 
+    #   1 SGL/DIFF bit (=0), followed by 3 channel select bits D2,
+    #   D1, and D0 followed by 14 dont care bits (I use zeros) as
+    #   The ADC values are clocked into the master.
+    
+    # Though I do not have the same steps in detail for the MCP3008/MCP3004,
+    # the concepts are the same, and you should use this function instead
+    #adc = self.spi.xfer2([1,(8+channel)<<4,0])
+    #data = (adc[1]&0x03 << 8) + adc[2]
+    
+    #For 12 bit MCP3208 devices, we ignore the first 12 bits, and keep the last 12
+    adc = self.spi.xfer2( [0x06| (channel >> 2), channel << 6, 0])
+    data = ((adc[1] & 0x0f) << 8) + adc[2]
     return data
 
   def readValue(self, channel):
@@ -74,3 +90,4 @@ class gsensors:
 
     #apply count_to_value for the channel
     return self.cnt2val[channel](cnt)
+
