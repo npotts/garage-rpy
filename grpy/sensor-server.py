@@ -1,19 +1,19 @@
+import sys
 import json
 import asyncore
 import socket
+from sensors import gsensors, grpycfg
+
 
 class CommandHandler(asyncore.dispatcher_with_send):
-  def parseCommand(self, cmd):
-    """Parses the actual commands and returns a string of what the"""
-    cmd = cmd.lower()
-    rtn = "Unknown command '%s'.  Try 'help'" % cmd
-    if cmd == "help":
-      self.send("""
+  global sensors
+  __help_text = """
 Available commands:
 help              Show this message
 config            dump the ini configuration 
 count <channel>   Retrieves the raw count values of a2d <channel>
 value <channel>   Retrieves the converted value of the a2d <channel>
+v     <channel>   Retrieves the converted value of the a2d <channel> with units
 pulsegpio <#>     Pulse gpio pin # as set in the configuration
 quit|exit         Close the socket connection
 
@@ -48,21 +48,60 @@ would:
 - Pulse the GPIO as per the config, and
 - Close the socket.
 
-""")
-    if cmd == "quit" or cmd == "exit":
+"""
+  def parseCommand(self, cmd):
+    """Parses the actual commands and returns a string of what the"""
+    global sensors
+    cmd = cmd.lower()
+    rtn = "Unknown command '%s'.  Try 'help'" % cmd
+    if cmd == "help": return self.send(self.__help_text)
+    if cmd == "quit" or cmd == "exit": 
       self.send("Closing connection\n")
-      self.close() 
-    if cmd.startswith("count"):
-      print("counted baby!")
-    if cmd.startswith("value"):
-      print("value baby!")
+      self.close()
+    if cmd.startswith("count") or cmd.startswith("value") or cmd.startswith("v"):
+      try:
+        channel = int(cmd.split(" ")[1])
+      except:
+        return self.send("Error: '%s' is incorrect usage\n>" % cmd);
+      try:
+        data = sensors.readValue(channel)
+      except:
+        return self.send("Error:  Unable to query SPI device\n>");
+      if cmd.startswith("count"):
+        return self.send("%d\n>" % data[0])
+      if cmd.startswith("value"):
+        return self.send("%s\n>" % data[1])
+      if cmd.startswith("v"):
+        return self.send("%1.2f %s \n>" % (data[1], data[2]))
+
     try:
       j = json.loads(cmd)
-      print(j)
-      if j.contains("channels"):
-        print("JSON mode!")
-    except:
-      pass
+    except: #not a JSON message
+      return 
+    #some sort of JSON messages
+    rtn={}
+
+    try: #give a decent attempt to decode the channels
+      looksOk = True
+      for chan in j["channels"]:
+        if int(chan) != chan:
+          looksOk = False
+      if (looksOk):
+        rtn["counts"] = []
+        rtn["values"] = []
+        rtn["units"] = []
+        for chan in j["channels"]:
+          d = sensors.readValue(chan)
+          rtn["counts"].append(d[0])
+          rtn["values"].append(d[1])
+          rtn["units"].append(d[2])
+    except Exception as e:
+      print(e)
+      return self.send('Error: Malformed "channels" section\n>')
+    self.send("%s\n" % json.dumps(rtn))
+    if "exit" in j or "quit" in j:
+      return self.close();
+
 
   def handle_read(self):
     data = self.recv(8192)
@@ -70,6 +109,7 @@ would:
       commands = data.splitlines()
       for cmd in commands:
         if cmd == '':
+          self.send(">")
           continue
         self.parseCommand(cmd.strip())
   
@@ -85,8 +125,13 @@ class SensorServer(asyncore.dispatcher):
     pair = self.accept()
     if pair is not None:
       sock, addr = pair
-      print 'Incoming connection from %s' % repr(addr)
+      #sock.send("Welcome to GaragePy!\n>")
+      print('Incoming connection from %s' % repr(addr))
       handler = CommandHandler(sock)
 
-server = SensorServer('', 8080)
-asyncore.loop()
+if __name__ == "__main__":
+  global sensors
+  cfg = grpycfg(sys.argv[1])
+  sensors = gsensors(cfg)
+  server = SensorServer('', cfg.tcp_port)
+  asyncore.loop()

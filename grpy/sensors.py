@@ -32,6 +32,7 @@ class grpycfg:
             rtn["cnt2val"] = {}
             rtn["spi_names"] = {}
             rtn["spi_descriptions"] = {}
+            rtn["spi_units"] = {}
             for sensor in cfg.get(spi, "sensors").split(","):
                 sensor = sensor.strip()
                 #do some magic to allow count to value equations in a config file.
@@ -41,6 +42,7 @@ class grpycfg:
                 rtn["cnt2val"][cfg.getint(sensor, "a2d_port")] = eval(s)
                 rtn["spi_names"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "name") 
                 rtn["spi_descriptions"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "description")
+                rtn["spi_units"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "units")
 
             #where is the GPIO switch
             switch = cfg.get("general", "open_close_switch")
@@ -57,6 +59,7 @@ class grpycfg:
 
 class gsensors:
   def __init__(self, cfg):
+    self.cfg = cfg
     self.cnt2val = cfg.cnt2val
     self.spi = spidev.SpiDev()
     self.spi.open(cfg.spi_port, cfg.spi_ce)
@@ -89,5 +92,6 @@ class gsensors:
     cnt = self.readRawCounts(channel)
 
     #apply count_to_value for the channel
-    return self.cnt2val[channel](cnt)
+    return (cnt, self.cnt2val[channel](cnt), self.cfg.spi_units[channel])
+  
 
