@@ -44,7 +44,7 @@ EG:
 
 would:
 
-- Return something like: {"counts": [514], "values": [2.5], "units": ['V']}
+- Return something like: {"counts": [514], "values": [2.5], "units": ['V'], "pulsed": 1}
 - Pulse the GPIO as per the config, and
 - Close the socket.
 
@@ -85,6 +85,16 @@ would:
     rtn={}
 
     try: #give a decent attempt to decode the channels
+      if "pulsegpio" in j:
+        try:
+          sensors.pulseGPIO()
+          rtn["pulsed"] = 1
+        except Exception as e:
+          print(e)
+          rtn["pulsed"] = 0
+        del(j["pulsegpio"])
+      if len(rtn) != 0 and "channels" not in j:
+        return self.send("%s\n" % json.dumps(rtn))
       looksOk = True
       for chan in j["channels"]:
         if int(chan) != chan:
