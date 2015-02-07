@@ -87,7 +87,7 @@ In this example, ``` tcp_port = 5000 ```.  You can use *netcat* / *nc* / *ncat* 
 	count <channel>   Retrieves the raw count values of a2d <channel>
 	value <channel>   Retrieves the converted value of the a2d <channel>
 	v     <channel>   Retrieves the converted value of the a2d <channel> with units
-	pulsegpio <#>     Pulse gpio pin # as set in the configuration
+	pulsegpio         Pulse gpio pin as set in the configuration
 	quit|exit         Close the socket connection
 
 	Additionally, if valid JSON document is passed, with the 
@@ -117,7 +117,7 @@ In this example, ``` tcp_port = 5000 ```.  You can use *netcat* / *nc* / *ncat* 
 
 	would:
 
-	- Return something like: {"counts": [514], "values": [2.5], "units": ['V']}
+	- Return something like: {"counts": [514], "values": [2.5], "units": ['V'], "pulsed": 1}
 	- Pulse the GPIO as per the config, and
 	- Close the socket.
 

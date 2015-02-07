@@ -14,7 +14,7 @@ config            dump the ini configuration
 count <channel>   Retrieves the raw count values of a2d <channel>
 value <channel>   Retrieves the converted value of the a2d <channel>
 v     <channel>   Retrieves the converted value of the a2d <channel> with units
-pulsegpio         Pulse gpio pin # as set in the configuration
+pulsegpio         Pulse gpio pin as set in the configuration
 quit|exit         Close the socket connection
 
 Additionally, if valid JSON document is passed, with the 
