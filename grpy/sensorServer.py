@@ -14,7 +14,7 @@ config            dump the ini configuration
 count <channel>   Retrieves the raw count values of a2d <channel>
 value <channel>   Retrieves the converted value of the a2d <channel>
 v     <channel>   Retrieves the converted value of the a2d <channel> with units
-pulsegpio <#>     Pulse gpio pin # as set in the configuration
+pulsegpio         Pulse gpio pin # as set in the configuration
 quit|exit         Close the socket connection
 
 Additionally, if valid JSON document is passed, with the 
@@ -58,6 +58,9 @@ would:
     if cmd == "quit" or cmd == "exit": 
       self.send("Closing connection\n")
       self.close()
+    if cmd.startswith("pulsegpio"):
+      sensors.pulseGPIO();
+      return self.send("GPIO #%d Pulsed\n>" % sensors.cfg.gpio_pin)
     if cmd.startswith("count") or cmd.startswith("value") or cmd.startswith("v"):
       try:
         channel = int(cmd.split(" ")[1])
@@ -129,9 +132,9 @@ class SensorServer(asyncore.dispatcher):
       print('Incoming connection from %s' % repr(addr))
       handler = CommandHandler(sock)
 
-if __name__ == "__main__":
+def startSocketServer(cfg_fname):
   global sensors
-  cfg = grpycfg(sys.argv[1])
+  cfg = grpycfg(cfg_fname)
   sensors = gsensors(cfg)
   server = SensorServer('', cfg.tcp_port)
   asyncore.loop()
