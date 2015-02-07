@@ -2,7 +2,7 @@
 A Garage Door Home Automation Controller using a Rasberry Pi. Put your garage door online! 
 
 #Schematic
-Yes, this is quite ugly and simple, but it is what I have!
+Yes, this is quite ugly and simple, but it is what I have!  I will attach photos of the unit when fully installed.
 
 ![General Schematic](schematic/diagram.png)
 
