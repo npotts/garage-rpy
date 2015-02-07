@@ -1,6 +1,10 @@
 # garage-rpy
 A Garage Door Home Automation Controller using a Rasberry Pi. Put your garage door online! 
 
+#Schematic
+Yes, this is quite ugly and simple, but it is what I have!
+
+![General Schematic](schematic/diagram.png)
 
 #Configuration File Definitions
 If you want a full example, you should probably look at sample_config.ini for a more detailed.
