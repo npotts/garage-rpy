@@ -2,71 +2,80 @@ import os
 import time
 import math
 import logging
+import spidev
+import RPi.GPIO as GPIO
 try:
-  import spidev
+  import ConfigParser as configparser #python2
 except:
-  print("Unable to import spidev")
-try:
-    import ConfigParser as configparser #python2
-except:
-    import configparser #python3
+  import configparser #python3
 
 
 class grpycfg:
-    """Class that returns an object with variables read from the ini file"""
-    def __init__(self, cfg_file):
-        """Merge items from **entries to self  Effectivly, this returns
-        and object WC that has public variables."""
-        try:
-            cfg = configparser.SafeConfigParser()
-            cfg.read(cfg_file)
-            rtn={}
+  """Class that returns an object with variables read from the ini file"""
+  def __init__(self, cfg_file):
+    """Merge items from **entries to self  Effectivly, this returns
+    and object WC that has public variables."""
+    try:
+      cfg = configparser.SafeConfigParser()
+      cfg.read(cfg_file)
+      rtn={}
 
-            rtn["tcp_port"] = cfg.getint("general", "tcp_port")
-            rtn["loglevel"] = cfg.getint("general", "loglevel")
+      rtn["tcp_port"] = cfg.getint("general", "tcp_port")
+      rtn["loglevel"] = cfg.getint("general", "loglevel")
 
-            #retrieve SPI parameters if present
-            spi                = cfg.get("general", "adc_spi")
-            rtn["spi_port"]    = cfg.getint(spi, "spidev_port")
-            rtn["spi_ce"]      = cfg.getint(spi, "spidev_ce")
-            rtn["cnt2val"] = {}
-            rtn["spi_names"] = {}
-            rtn["spi_descriptions"] = {}
-            rtn["spi_units"] = {}
-            for sensor in cfg.get(spi, "sensors").split(","):
-                sensor = sensor.strip()
-                #do some magic to allow count to value equations in a config file.
-                # yeah, yeah, yeah, you can do something stupid like '__import__("os").system("rm -rf /")',
-                # but that is up to the user to figure out.
-                s = "lambda cnt: %s" % cfg.get(sensor, "count_to_value")
-                rtn["cnt2val"][cfg.getint(sensor, "a2d_port")] = eval(s)
-                rtn["spi_names"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "name") 
-                rtn["spi_descriptions"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "description")
-                rtn["spi_units"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "units")
+      #retrieve SPI parameters if present
+      spi                = cfg.get("general", "adc_spi")
+      rtn["spi_port"]    = cfg.getint(spi, "spidev_port")
+      rtn["spi_ce"]      = cfg.getint(spi, "spidev_ce")
+      rtn["cnt2val"] = {}
+      rtn["spi_names"] = {}
+      rtn["spi_descriptions"] = {}
+      rtn["spi_units"] = {}
+      for sensor in cfg.get(spi, "sensors").split(","):
+        sensor = sensor.strip()
+        #do some magic to allow count to value equations in a config file.
+        # yeah, yeah, yeah, you can do something stupid like '__import__("os").system("rm -rf /")',
+        # but that is up to the user to figure out.
+        s = "lambda cnt: %s" % cfg.get(sensor, "count_to_value")
+        rtn["cnt2val"][cfg.getint(sensor, "a2d_port")] = eval(s)
+        rtn["spi_names"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "name") 
+        rtn["spi_descriptions"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "description")
+        rtn["spi_units"][cfg.getint(sensor, "a2d_port")] = cfg.get(sensor, "units")
 
-            #where is the GPIO switch
-            switch = cfg.get("general", "open_close_switch")
-            rtn["gpio_pin"] = cfg.get(switch, "pin")
-            rtn["gpio_idle"] = cfg.get(switch, "idle_state")
-            rtn["gpio_pulse"] = cfg.get(switch, "pulse")
+      #where is the GPIO switch
+      switch = cfg.get("general", "open_close_switch")
+      rtn["gpio_pin"] = cfg.getint(switch, "pin")
+      rtn["gpio_idle"] = cfg.getint(switch, "idle_state")
+      rtn["gpio_pulse"] = cfg.getfloat(switch, "pulse")
 
-            # this goodness merges the self dictionary of items with the one we just read from
-            self.__dict__.update(**rtn) 
+      # this goodness merges the self dictionary of items with the one we just read from
+      self.__dict__.update(**rtn) 
 
-        except Exception as e:
-            print("Unable to parse config properly: %s" % e)
-            print("Check your configuration file '%s'" % cfg_file)
+    except Exception as e:
+      print("Unable to parse config properly: %s" % e)
+      print("Check your configuration file '%s'" % cfg_file)
 
 class gsensors:
+  def __del__(self):
+    """Its always a good idea to cleanup"""
+    GPIO.cleanup()
+
   def __init__(self, cfg):
-    self.cfg = cfg
-    self.cnt2val = cfg.cnt2val
+    """Initialize the sensors"""
+    self.cfg = cfg #grab a local copy of the config
+
+    #setup SPI
     self.spi = spidev.SpiDev()
-    self.spi.open(cfg.spi_port, cfg.spi_ce)
+    self.spi.open(self.cfg.spi_port, self.cfg.spi_ce)
+
+    #setup GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    GPIO.setup(self.cfg.gpio_pin, GPIO.OUT, initial=int(self.cfg.gpio_idle))
+    GPIO.output(self.cfg.gpio_pin, int(self.cfg.gpio_idle))
 
   def readRawCounts(self, channel):
-    # Function to read SPI data from MCP3208 chip. 
-    # channel must be an integer 0-7 adc;
+    """Read raw ADC counts from the MCP3208 chip.  Channel is the ADC channel (0-7) to read from"""
     if (channel < 0) | (channel > 7):
       return -1;
     # A slight difference between the MCP3008 and the MCP3208 is
@@ -88,10 +97,12 @@ class gsensors:
     return data
 
   def readValue(self, channel):
-    # Function to convert counts to 
+    """Function to convert counts to some "values" via a provided transfer function"""
     cnt = self.readRawCounts(channel)
+    return (cnt, self.cfg.cnt2val[channel](cnt), self.cfg.spi_units[channel])
 
-    #apply count_to_value for the channel
-    return (cnt, self.cnt2val[channel](cnt), self.cfg.spi_units[channel])
-  
-
+  def pulseGPIO(self):
+    """Pulses the GPIO per the configuration"""
+    GPIO.output(self.cfg.gpio_pin, not bool(self.cfg.gpio_idle))
+    time.sleep(self.cfg.gpio_pulse)
+    GPIO.output(self.cfg.gpio_pin, bool(self.cfg.gpio_idle))
