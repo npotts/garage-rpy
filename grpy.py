@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 import json
 import time
@@ -256,5 +257,5 @@ def startSocketServer(cfg_fname):
 
 if __name__ == "__main__":
   import sys
-  sensorServer.startSocketServer(sys.argv[1])
+  startSocketServer(sys.argv[1])
 
