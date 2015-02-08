@@ -257,5 +257,10 @@ def startSocketServer(cfg_fname):
 
 if __name__ == "__main__":
   import sys
+  from subprocess import call
+  if not os.geteuid() == 0:
+    print("Script must be run as root.  Attempting to re-run as root")
+    sys.argv.insert(0, "sudo")
+    exit(call(sys.argv))
   startSocketServer(sys.argv[1])
 
