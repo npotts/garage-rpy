@@ -74,7 +74,7 @@ class gsensors:
 
     #setup GPIO
     GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
+    #GPIO.setwarnings(False)
     GPIO.setup(self.cfg.gpio_pin, GPIO.OUT, initial=int(self.cfg.gpio_idle))
     GPIO.output(self.cfg.gpio_pin, int(self.cfg.gpio_idle))
 
