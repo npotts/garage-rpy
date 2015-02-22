@@ -16,8 +16,7 @@ cd $GRPY_DIR || exit 1
 case "$1" in
 	start)
 		echo "Starting Garage-RPy Website & Control"
-		#./cherrypy-garagepy.py -p $PID_FILE &> /dev/null &
-		./cherrypy-garagepy.py -p $PID_FILE
+		./cherrypy-garagepy.py -p $PID_FILE &> /dev/null &
 	;;
 	stop)
 		echo "Stopping Garage-RPy Website"
