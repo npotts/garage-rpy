@@ -1,7 +1,5 @@
 #!/bin/bash
-
-
 HOST=garage
-
-#smash the open door button
-curl --data "pos=1" http://$HOST/generator
+curl --data "pos=1" -s http://$HOST/generator |\
+  jq '"The garage door is \(.spos) [aka \(.pos)% open] "' -e -c | \
+  sed s/\"//g 
