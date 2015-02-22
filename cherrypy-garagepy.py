@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os, os.path
 import string
 import random
@@ -17,43 +19,36 @@ class GaragePyWebService(object):
 
     @cherrypy.tools.accept(media='text/plain')
     def GET(self):
-        return cherrypy.session['mystring']
+        # return cherrypy.session['mystring']
+        pass
 
     def POST(self, smashit=None, length=None, pos=None):
+        global sensors
         if smashit:
-        #     data_value='{"units": ["%%", "C"], "counts": [1081, 14], "values": [%d, 34.32199599497977]}'
-        # #get some values from the unit.   We will refresh every 10 seconds or so
-        # rtn = html_core__
-        # progress_bars = ""
-        # d = json.loads(data_value % randint(0, 100))
-        # print(d)
-        # for i in range(len(d["values"])):
-        #     progress_bars += "<br />\n" + progress_bar__ % (int(d["values"][i]),  "Test ", d["units"][i])
-        #     print(d["values"][i])
-        # return rtn % progress_bars;
-            # print("\n\nSmashit pressed")
-            cherrypy.session["doneit"] = "Yeah baby"
+            sensors.pulseGPIO()
             return "Garage Button Triggered."
-        if length:
-            # print("\n\nGive it now pressed")
-            some_string = ''.join(random.sample(string.hexdigits, int(length)))
-            cherrypy.session['mystring'] = "ADSASDA " + some_string
-            return some_string
         if pos:
-            d = randint(0, 100)
-            return '{"pos":%d, "spos":"%s"}' % (d,  "closed" if d > 90 else "open")
-        return "ALL SORTS OF CRAP"
+            pos = sensors.dict()[0]["value"]; #dump of everything
+            print(pos)
+            return '{"pos":%d, "spos":"%s"}' % (pos,  "closed" if pos < 5 else "open")
+        return "error"
 
     def PUT(self, another_string):
-        cherrypy.session['mystring'] = another_string
+        # cherrypy.session['mystring'] = another_string
+        pass
 
     def DELETE(self):
-        cherrypy.session.pop('mystring', None)
+        # cherrypy.session.pop('mystring', None)
+        pass
 
 if __name__ == '__main__':
+    global sensors
+    cfg = grpycfg("config.ini")
+    sensors = gsensors(cfg)
     conf = {
         'global': {
             "server.socket_host": '0.0.0.0',
+            "server.socket_port": 80,
         },
         '/': {
             'tools.sessions.on': True,
