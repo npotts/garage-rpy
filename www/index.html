@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+   <head>
+     <title>Garage Pi Door Position</title>
+     <meta http-equiv="refresh" content="1000" />
+     <link href="www/style.css" rel="stylesheet">
+     <script type="text/javascript" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+     <script type="text/javascript" src="www/local.js"></script>
+   </head>
+   <body>
+     <div id="doneit" class="doneit">
+       <input type="button" id="smashit" value="Toggle Door"></input>
+       <div><progress id="location" max='100' value='50' /></div>
+       <div width="100%"><span>The door is </span><span id="isitopen" class="close">OPEN</span></div>
+     </div>
+   </body>
+</html>

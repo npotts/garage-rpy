@@ -1,0 +1,133 @@
+/* Some color schema from http://www.colorcombos.com/color-schemes/184/ColorCombo184.html
+light off white    - #F3F4EC - 243, 244, 236
+light grey         - #CCCFBC - 204, 207, 188
+tan                - #A37B45 - 163, 123, 69
+an olive           - #86942A - 134, 148, 42
+a darker green     - #507642 - 80, 118, 66
+*/
+
+body {
+	background-color: rgba(204, 207, 188);
+	background: rgb(204, 207, 188);
+	color: rgb(80, 118, 66);
+}
+
+/*The formatting for the open-door button */
+.doneit input[type="button"] {
+	color: rgba(243, 244, 236, 1);
+	font:2.4em Futura, ‘Century Gothic’, AppleGothic, sans-serif;
+	font-size:170%;
+	padding:14px;
+	background:url(overlay.png) repeat-x center #507642;
+	background-color:rgba(80, 118, 66, 1);
+	border:1px solid #507642;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+	border-bottom:1px solid #507642;
+	-moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+	-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+	box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+	cursor:pointer;
+	display:block;
+	width:100%;
+}
+.doneit input[type="button"]:hover{
+	color: rgba(243, 244, 236, 1);
+	background-color:rgba(80, 118, 66, .9);
+}
+.doneit div  {
+	text-shadow:1px 1px 0 rgba(NaN,NaN,NaN,1);
+	font-weight:normal;
+	color: rgba(243, 244, 236, 1);
+	letter-spacing:0pt;
+	word-spacing:0pt;
+	font-size:15px;
+	text-align:center;
+	/*font-family:helvetica, sans-serif;*/
+	font:2.4em Futura, ‘Century Gothic’, AppleGothic, sans-serif;
+	font-size:170%;
+	line-height:1;
+	margin:0px;
+	padding:0px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+}
+
+.doneit div {
+	margin: 0pt;
+	padding: 10px;
+}
+
+.doneit span {
+	text-shadow:1px 1px 0 rgba(NaN,NaN,NaN,1);
+	font-weight:bold;
+	color: rgba(80, 118, 66, 1);
+	letter-spacing:0pt;
+	word-spacing:0pt;
+	font-size:15px;
+	text-align:center;
+	vertical-align: middle;
+	font-family:helvetica, sans-serif;
+	line-height:1;
+	margin:0px;
+	padding:0px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+}
+
+.doneit .open {
+	text-transform: uppercase;
+	font-weight:bold;
+	vertical-align: middle;
+	text-shadow:1px 1px 0 rgba(NaN,NaN,NaN,1);
+	font-size: 30pt;
+	color: rgb(163, 123, 69);
+	font-family:helvetica, sans-serif;
+	line-height:1;
+}
+
+.doneit .closed {
+	text-transform: lowercase;
+	font-weight:bold;
+	vertical-align: middle;
+	text-shadow:1px 1px 0 rgba(NaN,NaN,NaN,1);
+	
+	color: rgb(80, 118, 66);
+	font-family:helvetica, sans-serif;
+	line-height:1;
+}
+
+/*Progress Bar - the default is ugly, and doesnt match any sort of theme */
+@keyframes animate-stripes {
+   100% { background-position: -100px 0px; }
+}
+
+.doneit progress[value] { /*This selects determined progress bar*/
+	/* Reset the default appearance */
+	-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  
+  	border: none; /* Get rid of default border in Firefox. */
+  	width: 100%;
+  	height: 80px;
+}
+.doneit progress[value]::-moz-progress-bar { /*Firefox settings*/
+	background-color: rgb(243, 244, 236);
+	border-radius: 2px; 
+	background-size: 35px 20px, 100% 100%, 100% 100%; 
+}
+.doneit progress[value]::-webkit-progress-bar {
+	background-color: rgb(243, 244, 236);
+	color: rgb(134, 148, 42);
+	border-radius: 2px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+.doneit progress[value]::-webkit-progress-value {
+	background: rgb(134, 148, 42);
+    border-radius: 2px; 
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+}
