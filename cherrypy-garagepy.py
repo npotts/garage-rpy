@@ -1,9 +1,11 @@
 import os, os.path
-import random
 import string
-from random import randint
-
+import random
 import cherrypy
+
+from grpy import grpycfg, gsensors
+
+from random import randint
 
 class StringGenerator(object):
    @cherrypy.expose
@@ -50,6 +52,9 @@ class GaragePyWebService(object):
 
 if __name__ == '__main__':
     conf = {
+        'global': {
+            "server.socket_host": '0.0.0.0',
+        },
         '/': {
             'tools.sessions.on': True,
             'tools.staticdir.root': os.path.abspath(os.getcwd())
