@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 import os, os.path
 import string
 import random
@@ -42,6 +43,12 @@ class GaragePyWebService(object):
         pass
 
 if __name__ == '__main__':
+    if "-p" in sys.argv:
+        pidfile = sys.argv[sys.argv.index("-p")+1]
+        print("Writing PID to %s" % pidfile)
+        pid = open(pidfile, "w")
+        pid.write("%d" % os.getpid())
+        pid.close()
     global sensors
     cfg = grpycfg("config.ini")
     sensors = gsensors(cfg)

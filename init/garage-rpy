@@ -1,0 +1,33 @@
+#! /bin/bash
+# /etc/init.d/garagepy
+
+if [[ `whoami` != "root" ]]; then
+	echo "You must run this as root"
+	exit 1
+fi
+
+#this is whereever you decided to install the sources
+GRPY_DIR="/home/nickp/code/garage-rpy/"
+#where should the PID of the shell forked process be put?
+PID_FILE="/tmp/garagepy.pid"
+
+cd $GRPY_DIR || exit 1
+
+case "$1" in
+	start)
+		echo "Starting Garage-RPy Website & Control"
+		#./cherrypy-garagepy.py -p $PID_FILE &> /dev/null &
+		./cherrypy-garagepy.py -p $PID_FILE
+	;;
+	stop)
+		echo "Stopping Garage-RPy Website"
+		kill -9 `cat $PID_FILE`
+		rm -fr $PID_FILE
+	;;
+	*)
+		echo "Usage: /etc/init.d/garagepy {start|stop}"
+		exit 1
+	;;
+esac
+
+exit 0
