@@ -97,9 +97,9 @@ There is a AJAX enabled web interface that is bundled to make it easier to deplo
 
 Some screenshots
 
-![Door Closed](README.d/web_ui.png)
+![Door Closed](README.d/web-ui.png)
 
-![Door Partially Open](README.d/web_ui_open.png)
+![Door Partially Open](README.d/web-ui-open.png)
 
 ![On my Phone](README.d/web-phone.png)
 
