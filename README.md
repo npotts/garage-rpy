@@ -26,7 +26,7 @@ you can provide a decent enough tranfer function in your ini file.
 
 My hacked install of the pot into a 1980s era garage door tensioner rod.
 
-![Installed](README.d/pot.png)
+![Installed](README.d/pot.jpg)
 
 
 #Configuration File Definitions
