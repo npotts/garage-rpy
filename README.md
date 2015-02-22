@@ -16,7 +16,7 @@ unknown 10-turn pot I found on amazon.  Sorry for the utter lack of theory - fee
 
 Schematic is saved in a format QElectroTech can open.
 
-#Installation
+#Physical Installation
 
 I have a few tools and tend to overbuild thing, but I am sure there are easier ways to attach this.  Just be sure you install the
 pot/potentiometer in such a way that it can freely move across the entire cycle of the door opening and closing and do not create 
@@ -28,74 +28,41 @@ My hacked install of the pot into a 1980s era garage door tensioner rod.
 
 ![Installed](README.d/pot.jpg)
 
+#Software Installation
+This is all written in python with a smathering of CSS/JS/HTML.
+
+##Required Libaries
+
+* [RPi.GPIO](https://pypi.python.org/pypi/RPi.GPIO)
+* [spidev](https://pypi.python.org/pypi/spidev/2.0)
+* [cherrypy](http://www.cherrypy.org)
+
+##Init file
+There is a sample debian compatable RC file that can be copied to /etc/init.d, altered, and added to the boot sequence via something like below.
+
+```sh
+	cp init/garage-rpy /etc/init.d/
+	vim /etc/init.d/garage-rpy #edit some defaults
+	update-rc.d garage-rpy defaults
+```
 
 #Configuration File Definitions
-If you want a full example, you should probably look at sample_config.ini for a more detailed.
-This is the config I have been using
-
-```ini
-
-	[general]
-	tcp_port=5000
-	loglevel=0
-	adc_spi = mcp3008_adc
-	open_close_switch = gpio_relay
-
-	[mcp3008_adc]
-	spidev_port=0
-	spidev_ce=0
-	sensors=door,temperature
+If you want a full example, you should probably look at [sample_config.ini](sample_config.ini) for a more details.
+[This](config.ini) is the configuration I have been using.
 
 
-	[door]
-	a2d_port = 0
-	# A R Divider where R1 attaches to Vcc and R2 connects to Gnd: the value of R2 is 
-	# defined by cnt / bits * (R1+R2) where bits is the ADC resolution (1024 for MCP3008)
-	# and R1+R2 is total value of the pot (5K, 10K, etc)
-	#count_to_value = cnt / 1024 * ( 5000 )
-	count_to_value = 100.0 * cnt / 4096
-	name=Door Position
-	description=Position of the Garage Door
-	max=4096
-	min=0
-	units=%%
-
-	[temperature]
-	a2d_port = 1
-	# A temperature couple connected in a R Divider where R1 attaches to Vcc
-	# and R2=temp probe connects to Gnd. R2 is optimally 10k at room temp.
-	# R2 is defined as R1 * (#bits/ (#bits - cnt))
-	# Temp is given as 251.11-25.45*log(R2)
-	# Putting them together gives 
-	count_to_value = 251.11-25.45*math.log(4988*4096/(4096-cnt))
-	name=Air Temperature
-	description=Airtemp in the garage attic
-	max=1024
-	min=0
-	units=C
-
-	[gpio_relay]
-	# Which GPIO pin are we using to control the relay
-	pin = 19
-
-	# What should the idle state of the pin be.  Normally
-	# this should just remain to be low, but if you have
-	# a active low relay, you should set this to 1.
-	idle_state = 0
-
-	#How long to pulse the pin high/low (in seconds)
-	pulse= 0.500
-
-
-```
 # CherryPy Interface
-There is a AJAX enabled web interface that is bundled to make it easier to deploy.  This can be started by running 
+There is a simple AJAX enabled web interface that is bundled to make it easier to deploy.  This can be started by running 
 
 ```sh 
 	sudo python cherrypy-garagepy.py
 ```
 
-Some screenshots
+or by following the instructions given above to install the INIT file.
+
+##Normative Web Interface
+
+Screenshots of the web interface
 
 ![Door Closed](README.d/web-ui.png)
 
@@ -103,9 +70,16 @@ Some screenshots
 
 ![On my Phone](README.d/web-phone.png)
 
+## CLI Apps
 
+In the [scripts](scripts) folder, there are a couple scripts that may be handy to CLI gurus. Provided scripts are combination of curl and [jq](http://stedolan.github.io/jq/).
 
-# Socket Server Interface (needs some work)
+- door-pos.sh - Displays a string that show where the door is and if it is open or not.
+- open-door.sh - Opens / closes door
+
+http://stedolan.github.io/jq/
+
+# Socket Server Interface (Obsolete)
 
 Start the server with a valid configuration file as described above
 
@@ -187,6 +161,3 @@ You can also do one-liners like this to feed directly to ncat to get values, jus
 	nickp@lappy /home/nickp %
 
 ```
-
-
-
