@@ -11,17 +11,30 @@ GRPY_DIR="/home/nickp/code/garage-rpy/"
 #where should the PID of the shell forked process be put?
 PID_FILE="/tmp/garagepy.pid"
 
+grpy_stop() {
+   echo "Stopping Garage-RPy Website"
+   kill -9 `cat $PID_FILE`
+   rm -fr $PID_FILE
+}
+
+grpy_start() {
+  echo "Starting Garage-RPy Website & Control"
+  ./cherrypy-garagepy.py -p $PID_FILE &> /dev/null &
+}
+
 cd $GRPY_DIR || exit 1
 
+
 case "$1" in
+  restart)
+    grpy_stop
+    grpy_start
+  ;;
 	start)
-		echo "Starting Garage-RPy Website & Control"
-		./cherrypy-garagepy.py -p $PID_FILE &> /dev/null &
+    grpy_start
 	;;
 	stop)
-		echo "Stopping Garage-RPy Website"
-		kill -9 `cat $PID_FILE`
-		rm -fr $PID_FILE
+    grpy_stop
 	;;
 	*)
 		echo "Usage: /etc/init.d/garagepy {start|stop}"
