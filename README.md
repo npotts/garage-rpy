@@ -31,6 +31,15 @@ My hacked install of the pot into a 1980s era garage door tensioner rod.
 #Software Installation
 This is all written in python with a smathering of CSS/JS/HTML.
 
+## EZ Install on rasbian
+There is a simple install script for those on the debian based rasbian distro located in the [scripts](scripts) folder.  You can use this via somethink like below.
+
+```sh
+
+	wget "https://raw.githubusercontent.com/npotts/garage-rpy/master/scripts/rasbian-ghetto-install.sh" -O inst-deps.sh && chmod +x inst-deps.sh && nano ./inst-deps.sh && ./inst-deps.sh
+
+```
+
 ##Required Libaries
 
 * [RPi.GPIO](https://pypi.python.org/pypi/RPi.GPIO)

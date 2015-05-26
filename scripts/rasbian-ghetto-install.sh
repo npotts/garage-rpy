@@ -3,7 +3,7 @@
 #Where to fetch and store needed source code to
 CODE=~/code
 
-#sudo apt-get install -y build-essential RPi.GPIO python-cherrypy3 python-pip python-dev
+sudo apt-get install -y build-essential RPi.GPIO python-cherrypy3 python-pip python-dev
 
 mkdir -p $CODE
 python -c "import spidev" &>/dev/null || ( echo "Installing needed python 'spidev' module"; cd $CODE && git clone  --recursive https://github.com/doceme/py-spidev && cd $CODE/py-spidev && sudo python setup.py install )
