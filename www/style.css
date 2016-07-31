@@ -128,6 +128,13 @@ body {
 }
 .doneit progress[value]::-webkit-progress-value {
 	background: rgb(134, 148, 42);
-  border-radius: 2px; 
-  background-size: 35px 20px, 100% 100%, 100% 100%;
+    border-radius: 2px; 
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+
+.pix {
+	display: block;
+	border: 5px solid rgba(243, 244, 236, 1);
+	margin: auto;
+	width: 100%;
 }
